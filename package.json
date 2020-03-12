@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "commander": "^4.1.1",
+    "puppeteer": "^2.1.1",
+    "request": "^2.88.2",
+    "xlsx": "^0.15.5"
+  },
+  "name": "refactory-cli",
+  "description": "",
+  "version": "1.0.0",
+  "main": "cli.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faustaleonardo/refactory-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faustaleonardo/refactory-cli/issues"
+  },
+  "homepage": "https://github.com/faustaleonardo/refactory-cli#readme"
+}
