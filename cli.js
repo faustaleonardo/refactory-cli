@@ -179,28 +179,6 @@ program
 
 /**---------------------------------------------------------------- */
 program
-  .command('ip-external')
-  .description('return your ip address in public network')
-  .action(() => {
-    let ip = '';
-    const options = {
-      host: 'api.ipify.org'
-    };
-
-    https.get(options, res => {
-      res.on('data', chunk => {
-        ip += chunk;
-      });
-      res.on('end', () => {
-        console.log(ip);
-      });
-    });
-  });
-
-program.parse(process.argv);
-
-/**---------------------------------------------------------------- */
-program
   .command('convert <input> <output>')
   .description('import from or export to CSV / XLS / XLSX file')
   .action((input, output) => {
@@ -377,5 +355,4 @@ program
         }
       });
   });
-
 program.parse(process.argv);
