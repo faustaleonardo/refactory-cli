@@ -319,7 +319,7 @@ program
     const axios = require('axios');
     axios
       .get('https://www.cgv.id/en/loader/home_movie_list/')
-      .then(async response => {
+      .then(response => {
         const data = response.data.now_playing;
         let $ = cheerio.load(data);
         return $('a');
