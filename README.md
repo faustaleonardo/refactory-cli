@@ -25,5 +25,5 @@ $ refactory-cli <any_command>
 ### Or
 
 ```sh
-$ node cli.js <command>
+$ node cli.js <any_command>
 ```
