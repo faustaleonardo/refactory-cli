@@ -282,4 +282,100 @@ program
 
     await browser.close();
   });
+
+/**---------------------------------------------------------------- */
+const slugify = string => {
+  const a =
+    'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
+  const b =
+    'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
+  const p = new RegExp(a.split('').join('|'), 'g');
+
+  return string
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(p, c => b.charAt(a.indexOf(c)))
+    .replace(/&/g, '-and-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
+program
+  .command('screenshot-list <file>')
+  .description('Get screenshots from a list of files')
+  .option('--format <fmt>', 'set the extension for the file', 'png')
+  .action(async (file, cmdObj) => {
+    const result = fs.readFileSync(file, 'utf8');
+    const urls = result.split('\n');
+    const format = cmdObj.format;
+
+    for (let url of urls) {
+      const fileName = slugify(url);
+      path = generateUniqueFileName(`${fileName}.${format}`, true);
+
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      if (path.slice(-3) === 'pdf') {
+        await page.goto(url, {
+          waitUntil: 'networkidle2'
+        });
+        await page.pdf({ path, format: 'A4' });
+      } else {
+        await page.goto(url);
+        await page.screenshot({ path });
+      }
+      await browser.close();
+    }
+  });
+
+/**---------------------------------------------------------------- */
+program
+  .command('movies')
+  .description(
+    'Get all information about new movies in theaters for today from CGV'
+  )
+  .action(() => {
+    const axios = require('axios');
+    axios
+      .get('https://www.cgv.id/en/loader/home_movie_list/')
+      .then(async response => {
+        const data = response.data.now_playing;
+        let $ = cheerio.load(data);
+        return $('a');
+      })
+      .then(async links => {
+        for (let i = 0; i < links.length; i++) {
+          const url = `https://www.cgv.id${links[i].attribs.href}`;
+
+          await axios.get(url).then(response => {
+            $ = cheerio.load(response.data);
+            if (i > 0) {
+              console.log(
+                '---------------------------------------------------------------------------------------------------------'
+              );
+            }
+
+            const title = $('.movie-info-title \n')
+              .text()
+              .trim();
+            console.log(`${title} \n`);
+            const allInformation = $('.movie-add-info > ul > li');
+            for (let j = 0; j < allInformation.length; j++) {
+              console.log(allInformation[j].children[0].data);
+            }
+            let trailer = $('.trailer-btn-wrapper > img').attr('onclick');
+            trailer = trailer.match(/'([^']+)'/)[1];
+            console.log(`Trailer: ${trailer}`);
+            const synopsis = $('.movie-synopsis')
+              .text()
+              .trim();
+            console.log(`Synopsis \n ${synopsis}`);
+          });
+        }
+      });
+  });
+
 program.parse(process.argv);
