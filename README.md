@@ -16,7 +16,7 @@ $ npm install
 $ npm link
 ```
 
-### Then just use
+### Then just type
 
 ```sh
 $ refactory-cli <any_command>
