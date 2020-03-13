@@ -8,6 +8,7 @@ const XLSX = require('xlsx');
 const cheerio = require('cheerio');
 const request = require('request');
 const puppeteer = require('puppeteer');
+const axios = require('axios');
 
 /**----------------------------------------------------------------*/
 program
@@ -316,7 +317,6 @@ program
     'Get all information about new movies in theaters for today from CGV'
   )
   .action(() => {
-    const axios = require('axios');
     axios
       .get('https://www.cgv.id/en/loader/home_movie_list/')
       .then(response => {
