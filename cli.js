@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const os = require('os');
 const https = require('https');
+const fs = require('fs');
 
 const program = require('commander');
 const XLSX = require('xlsx');
@@ -208,15 +209,76 @@ program
   });
 
 /**---------------------------------------------------------------- */
-// CONTINUE TOMORROW
+const generate = (path, startIndex, endIndex, countFormat) => {
+  let result = '';
+  let tmp = path.split('');
+  tmp.splice(startIndex, endIndex, ...countFormat);
+  tmp = tmp.join('');
+
+  if (!fs.existsSync(`./${tmp}`)) result = tmp;
+
+  return result;
+};
+
+const generateUniqueFileName = (path, output) => {
+  let result = undefined;
+  let countFormat = '';
+  if (!fs.existsSync(`./${path}`)) {
+    result = path;
+  } else {
+    let count = 1;
+    if (output) {
+      while (true) {
+        countFormat = `(${count})`;
+        result = generate(path, -4, 0, countFormat);
+        if (result) break;
+        else count++;
+      }
+    } else {
+      while (true) {
+        countFormat = ('000' + count).substr(-3).split('');
+        result = generate(path, -7, 3, countFormat);
+        if (result) break;
+        else count++;
+      }
+    }
+  }
+
+  return result;
+};
+
 program
   .command('screenshot <url>')
+  .option('--format <fmt>', 'set the extension for the file', 'png')
+  .option(
+    '--output <out>',
+    'set the file name along with extension',
+    'screenshot-001.png'
+  )
   .description('Get a screenshot from a URL')
-  .action(async url => {
+  .action(async (url, cmdObj) => {
+    const format = cmdObj.format;
+    const output = cmdObj.output;
+
+    let path = '';
+
+    if (output !== 'screenshot-001.png') {
+      path = generateUniqueFileName(output, true);
+    } else {
+      path = generateUniqueFileName(`screenshot-001.${format}`, false);
+    }
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto(url);
-    await page.screenshot({ path: 'example.png' });
+    if (path.slice(-3) === 'pdf') {
+      await page.goto(url, {
+        waitUntil: 'networkidle2'
+      });
+      await page.pdf({ path, format: 'A4' });
+    } else {
+      await page.goto(url);
+      await page.screenshot({ path });
+    }
 
     await browser.close();
   });
